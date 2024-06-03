@@ -13,6 +13,8 @@ jobs:
       with:
         path: ci_cache
         key: ${{ runner.os }}-build-${{ hashFiles('scripts/ci-install.sh') }}
+        restore-keys: |
+          ${{ runner.OS }}-build-
 
     - name: Prepare build
       run: ./scripts/ci-install.sh
