@@ -47,7 +47,7 @@ finish_test()
 DICTDIR=${BUILD_DIR}/dict
 mkdir -p ${DICTDIR}
 
-TARGET="stm32f103"
+TARGET="displayv3se.config"
 
 start_test mcu_compile "$TARGET"
 make clean
