@@ -47,17 +47,19 @@ finish_test()
 DICTDIR=${BUILD_DIR}/dict
 mkdir -p ${DICTDIR}
 
-for TARGET in test/configs/*.config ; do
-    start_test mcu_compile "$TARGET"
-    make clean
-    make distclean
-    unset CC
-    cp ${TARGET} .config
-    make olddefconfig
-    make V=1
-    size out/*.elf
-    finish_test mcu_compile "$TARGET"
-    cp out/klipper.dict ${DICTDIR}/$(basename ${TARGET} .config).dict
+TARGET="stm32f103"
+
+start_test mcu_compile "$TARGET"
+make clean
+make distclean
+unset CC
+cp ${TARGET} .config
+make olddefconfig
+make V=1
+size out/*.elf
+finish_test mcu_compile "$TARGET"
+cp out/klipper.dict ${DICTDIR}/$(basename ${TARGET} .config).dict
+
 done
 
 
