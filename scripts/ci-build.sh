@@ -10,7 +10,6 @@ BUILD_DIR=${PWD}/ci_build
 export PATH=${BUILD_DIR}/pru-gcc/bin:${PATH}
 export PATH=${BUILD_DIR}/or1k-linux-musl-cross/bin:${PATH}
 PYTHON=${BUILD_DIR}/python-env/bin/python
-PYTHON2=${BUILD_DIR}/python2-env/bin/python
 
 
 ######################################################################
@@ -56,9 +55,9 @@ unset CC
 cp ${TARGET} .config
 make olddefconfig
 make V=1
-size out/*.elf
+ls -l out/*.bin
 finish_test mcu_compile "$TARGET"
-cp out/klipper.dict ${DICTDIR}/$(basename ${TARGET} .config).dict
+cp out/klipper.bin ${DICTDIR}/$(basename ${TARGET} .config).bin
 
 
 ######################################################################
