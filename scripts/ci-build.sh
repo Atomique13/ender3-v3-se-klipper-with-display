@@ -56,6 +56,7 @@ cp ${TARGET} .config
 make olddefconfig
 make V=1
 ls -l out/*.bin
+md5sum out/*.bin
 finish_test mcu_compile "$TARGET"
 cp out/klipper.bin ${DICTDIR}/$(basename ${TARGET} .config).bin
 
