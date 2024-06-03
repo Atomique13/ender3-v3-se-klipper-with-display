@@ -1,6 +1,6 @@
 # Perform continuous integration tests on updates and pull requests
-name: Build firmware
-on: [workflow_dispatch]
+name: Build Firmware
+on: workflow_dispatch
 
 jobs:
   build:
