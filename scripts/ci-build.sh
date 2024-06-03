@@ -43,8 +43,8 @@ finish_test()
 # Run compile tests for several different MCU types
 ######################################################################
 
-DICTDIR=${BUILD_DIR}/dict
-mkdir -p ${DICTDIR}
+OUTPUTDIR=${BUILD_DIR}/output
+mkdir -p ${OUTPUTDIR}
 
 TARGET="test/configs/displayv3se.config"
 
@@ -58,7 +58,7 @@ make V=1
 ls -l out/*.bin
 md5sum out/*.bin
 finish_test mcu_compile "$TARGET"
-cp out/klipper.bin ${DICTDIR}/$(basename ${TARGET} .config).bin
+cp out/klipper.bin ${OUTPUTDIR}/$(basename ${TARGET} .config).bin
 
 
 ######################################################################
