@@ -8,6 +8,7 @@ import math
 import random
 import mcu
 import time
+from . import probe
 
 class PRTouchCFG:
     def __init__(self, config):
@@ -35,6 +36,7 @@ class PRTouchCFG:
         self.show_msg = config.getboolean('show_msg', default=False)
         self.check_bed_mesh_max_err = config.getfloat('check_bed_mesh_max_err', default=0.2, minval=0.01, maxval=1)
         self.wipe_retract_distance = config.getfloat('wipe_retract_distance', default=0, minval=0, maxval=50)
+        self.probe_name = config.get('probe_name', default='bltouch')
 
         self.stored_profs = config.get_prefix_sections('prtouch')
         self.stored_profs = self.stored_profs[1] if (len(self.stored_profs) == 2) else None
@@ -370,6 +372,19 @@ class PRTouchZOffsetWrapper:
             self.obj.hx711s.delay_s(0.005)
         return self.val.out_index, self.val.out_val_mm, True
 
+    def probe_calibrate_finalize(self, kin_pos):
+        if kin_pos is None:
+            return
+        z_offset = kin_pos[2]
+        probe_name = self.cfg.probe_name
+        gcode = self.obj.printer.lookup_object('gcode')
+        gcode.respond_info(
+            "%s: z_offset: %.3f\n"
+            "The SAVE_CONFIG command will update the printer config file\n"
+            "with the above and restart the printer." % (probe_name, z_offset))
+        configfile = self.obj.printer.lookup_object('configfile')
+        configfile.set(probe_name, 'z_offset', "%.3f" % (z_offset,))
+
     cmd_NOZZLE_CLEAR_help = "Clear the nozzle on bed."
     def cmd_NOZZLE_CLEAR(self, gcmd):
         hot_min_temp = gcmd.get_float('HOT_MIN_TEMP', self.cfg.hot_min_temp)
@@ -400,7 +415,7 @@ class PRTouchZOffsetWrapper:
         self.pnt_msg("Checking z-position of probe (%.2f, %.2f)" % (probe_x, probe_y))
         self._move([probe_x, probe_y, self.cfg.bed_max_err + 1.], self.cfg.g29_xy_speed)
         probe_gcmd = self.obj.gcode.create_gcode_command("PROBE", "PROBE", {'SAMPLES': '2'})
-        z_probe = self.obj.probe.run_probe(probe_gcmd)
+        z_probe = probe.run_single_probe(self.obj.probe, probe_gcmd)
         self.pnt_msg('Probe at sensor: %.3f' % z_probe[2])
 
         nozzle_z_offset = self.probe_z_offset(x, y)
@@ -415,7 +430,7 @@ class PRTouchZOffsetWrapper:
             self.obj.gcode.run_script_from_command('SET_GCODE_OFFSET Z_ADJUST=%f MOVE=1' % (z_adjust))
 
         z_probe[2] = homing_origin[2] + z_adjust - start_z_offset
-        self.obj.probe.probe_calibrate_finalize(z_probe)
+        self.probe_calibrate_finalize(z_probe)
 
     cmd_PRTOUCH_ACCURACY_help = "Probe Z-height accuracy at sensoor position"
     def cmd_PRTOUCH_ACCURACY(self, gcmd):
