@@ -375,7 +375,7 @@ class PRTouchZOffsetWrapper:
     def probe_calibrate_finalize(self, kin_pos):
         if kin_pos is None:
             return
-        z_offset = kin_pos[2]
+        z_offset = -kin_pos[2]
         probe_name = self.cfg.probe_name
         gcode = self.obj.printer.lookup_object('gcode')
         gcode.respond_info(
