@@ -183,6 +183,10 @@ class E3v3seDisplay:
     index_leveling = MROWS
     index_tune = MROWS
 
+    is_dimmed = False
+    time_since_movement = 0
+    display_dim_timeout = 300
+
     MainMenu = 0
     SelectFile = 1
     Prepare = 2
@@ -3708,6 +3712,14 @@ class E3v3seDisplay:
         if update and self.checkkey != self.MainMenu:
             self.Draw_Status_Area(update)
 
+        self.time_since_movement += 1
+        if (self.time_since_movement >= self.display_dim_timeout) & (not self.is_dimmed):
+            self.lcd.set_backlight_brightness(5)
+            self.is_dimmed = True
+        elif (self.time_since_movement < self.display_dim_timeout) & (self.is_dimmed):
+            self.lcd.set_backlight_brightness(40)
+            self.is_dimmed = False
+
         return eventtime + self._update_interval
 
     def encoder_has_data(self):
@@ -3773,6 +3785,8 @@ class E3v3seDisplay:
             self.HMI_StepXYZE()
         elif self.checkkey == self.FeatureNotAvailable:
             self.HMI_FeatureNotAvailable()
+
+        self.time_since_movement = 0
 
     def log(self, msg, *args, **kwargs):
         if self._logging:
