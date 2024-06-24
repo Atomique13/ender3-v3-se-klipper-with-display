@@ -7,12 +7,10 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
-      - run: |
-          cd ~ 
+      - run: | 
           git clone https://github.com/dw-0/kiauh.git
-          echo "https://github.com/Klipper3d/klipper" > ~/kiauh/klipper_repos.txt
-          echo "https://github.com/jpcurti/ender3-v3-se-klipper-with-display" >> ~/kiauh/klipper_repos.txt
-          cd ~
+          echo "https://github.com/Klipper3d/klipper" > /kiauh/klipper_repos.txt
+          echo "https://github.com/jpcurti/ender3-v3-se-klipper-with-display" >> /kiauh/klipper_repos.txt
           ./kiauh/kiauh.sh
           6
           1
