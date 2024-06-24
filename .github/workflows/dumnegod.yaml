@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: | 
           MAIN_DIR=${PWD}
-          sudo apt-get update && sudo apt-get install git -y
+          sudo apt-get update -y && sudo apt-get install git -y
           cd ${MAIN_DIR} && git clone https://github.com/dw-0/kiauh.git
           echo "https://github.com/Klipper3d/klipper" > kiauh/klipper_repos.txt
           echo "https://github.com/jpcurti/ender3-v3-se-klipper-with-display" >> kiauh/klipper_repos.txt
