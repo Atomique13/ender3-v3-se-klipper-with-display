@@ -4,14 +4,15 @@ on: workflow_dispatch
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
       - run: | 
+          MAIN_DIR=${PWD}
           sudo apt-get update && sudo apt-get install git -y
-          cd ~ && git clone https://github.com/dw-0/kiauh.git
-          echo "https://github.com/Klipper3d/klipper" > ~/kiauh/klipper_repos.txt
-          echo "https://github.com/jpcurti/ender3-v3-se-klipper-with-display" >> ~/kiauh/klipper_repos.txt
+          cd ${MAIN_DIR} && git clone https://github.com/dw-0/kiauh.git
+          echo "https://github.com/Klipper3d/klipper" > kiauh/klipper_repos.txt
+          echo "https://github.com/jpcurti/ender3-v3-se-klipper-with-display" >> kiauh/klipper_repos.txt
           6
           1
           1
