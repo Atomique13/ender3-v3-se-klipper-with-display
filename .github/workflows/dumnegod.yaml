@@ -1,0 +1,22 @@
+# Perform continuous integration tests on updates and pull requests
+name: dumnegod
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          cd ~ 
+          git clone https://github.com/dw-0/kiauh.git
+          echo "https://github.com/Klipper3d/klipper" > ~/kiauh/klipper_repos.txt
+          echo "https://github.com/jpcurti/ender3-v3-se-klipper-with-display" >> ~/kiauh/klipper_repos.txt
+          cd ~
+          ./kiauh/kiauh.sh
+          6
+          1
+          1
+          B
+          B
+      - run: echo "DONE"
