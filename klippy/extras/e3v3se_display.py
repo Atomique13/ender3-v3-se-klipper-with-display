@@ -2344,7 +2344,7 @@ class E3v3seDisplay:
             3,
             99 + 2 * self.STAT_CHR_W,
             300,
-            self.pd.feedrate_percentage,
+            self.pd.extrusion_multiplier,
         )
         self.lcd.draw_string(
             False,
@@ -2368,7 +2368,7 @@ class E3v3seDisplay:
             3,
             165 + 2 * self.STAT_CHR_W,
             268,
-            self.pd.feedrate_percentage,
+            self.pd.fan_speed,
         )
         self.lcd.draw_string(
             False,

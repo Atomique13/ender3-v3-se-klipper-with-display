@@ -124,6 +124,8 @@ class PrinterData:
 
     BABY_Z_VAR = 0
     feedrate_percentage = 100
+    extrusion_multiplier = 100
+    fan_speed = 0
     temphot = 0
     tempbed = 0
 
@@ -233,7 +235,7 @@ class PrinterData:
         gcm = self.printer.lookup_object(
             "gcode_move").get_status(self.reactor.monotonic())
         z_offset = gcm["homing_origin"][2]  # z offset
-        flow_rate = gcm["extrude_factor"] * 100  # flow rate percent
+        extrusionMultiplier = gcm["extrude_factor"] * 100  # flow rate percent
         self.absolute_moves = gcm["absolute_coordinates"]  # absolute or relative
         self.absolute_extrude = gcm["absolute_extrude"]  # absolute or relative
         speed = gcm["speed"]  # current speed in mm/s
@@ -244,6 +246,7 @@ class PrinterData:
             "extruder").get_status(self.reactor.monotonic())
         fan = self.printer.lookup_object(
             "fan").get_status(self.reactor.monotonic())
+        fanSpeed = fan['speed']
         Update = False
         try:
             if self.thermalManager["temp_bed"]["celsius"] != int(bed["temperature"]):
@@ -268,6 +271,15 @@ class PrinterData:
                 Update = True
             if self.thermalManager["fan_speed"][0] != int(fan["speed"] * 100):
                 self.thermalManager["fan_speed"][0] = int(fan["speed"] * 100)
+                Update = True
+            if self.feedrate_percentage != print_speed:
+                self.feedrate_percentage = print_speed
+                Update = True
+            if self.extrusion_multiplier != extrusionMultiplier:
+                self.extrusion_multiplier = extrusionMultiplier
+                Update = True
+            if self.fan_speed != fanSpeed:
+                self.fan_speed = fanSpeed
                 Update = True
             if self.BABY_Z_VAR != z_offset:
                 self.BABY_Z_VAR = z_offset
