@@ -144,7 +144,11 @@ class PrinterData:
         material_preset_t("PLA", 200, 60),
         material_preset_t("ABS", 210, 100),
     ]
-    files = None
+    subdirs = []
+    subdirIndex = 0
+    fl = []
+    subdirPath = ''
+
     MACHINE_SIZE = "220x220x250"
     SHORT_BUILD_VERSION = "1.00"
     CORP_WEBSITE_E = "www.klipper3d.org"
@@ -157,7 +161,6 @@ class PrinterData:
         self.reactor = self.printer.get_reactor()
         self._logging = config.getboolean("logging", False)
         self.gcode = self.printer.lookup_object("gcode")
-        self.fl = []
         self.status = None
 
     def handle_ready(self):
@@ -221,15 +224,56 @@ class PrinterData:
         self.log("postREST called")
 
 
-    def GetFiles(self, refresh=False):
+    def GetFiles(self):
         sdcard = self.printer.lookup_object('virtual_sdcard')
         files = sdcard.get_file_list(True)
+        self.subdirIndex = len(self.subdirPath.split('/')) if self.subdirPath else 0
         self.fl = []
         self.names = []
+        self.subdirs = []
+
+        # Find all folders in current subdirectory
         for file, _ in files:
-            self.fl.append(file)
-            self.names.append(file.split('/')[-1])
+            path = file.split('/')
+            if(file.startswith(self.subdirPath)):
+                name = path[self.subdirIndex]
+                if len(path) > self.subdirIndex + 1:
+                    if not name in self.subdirs:
+                        self.subdirs.append(name) # add to checked subdirs
+                        self.names.append(name) # add only the name
+                        self.fl.append(file) # add full filepath
+
+        # Find all files
+        for file, _ in files:
+            path = file.split('/')
+            if file.startswith(self.subdirPath) :
+                name = path[self.subdirIndex]
+                if len(path) == self.subdirIndex + 1:
+                    self.names.append(path[self.subdirIndex])
+                    self.fl.append(file)
+        
         return self.names
+    
+    def selectFile(self, index):
+        file = self.fl[index]
+        if len(file.split('/')) == self.subdirIndex + 1:
+            return True
+        else:
+            if(self.subdirPath):
+                currentPath = self.subdirPath.split('/')
+            else:
+                currentPath = []
+            newDir = file.split('/')[self.subdirIndex]
+            self.subdirIndex += 1
+            currentPath.append(newDir)
+            self.subdirPath = '/'.join(currentPath)
+            return False
+
+    def fileListBack(self):
+        self.subdirIndex -= 1
+        path = self.subdirPath.split('/')
+        path.pop(-1)
+        self.subdirPath = '/'.join(path)
 
     def update_variable(self):
         gcm = self.printer.lookup_object(
@@ -246,7 +290,7 @@ class PrinterData:
             "extruder").get_status(self.reactor.monotonic())
         fan = self.printer.lookup_object(
             "fan").get_status(self.reactor.monotonic())
-        fanSpeed = fan['speed']
+        fanSpeed = fan['speed'] * 100
         Update = False
         try:
             if self.thermalManager["temp_bed"]["celsius"] != int(bed["temperature"]):
@@ -383,8 +427,8 @@ class PrinterData:
         return (int(extruder["target"]) > int(extruder["temperature"])) if extruder else False
     
     
-    def openAndPrintFile(self, filenum):
-        self.sendGCode('SDCARD_PRINT_FILE FILENAME="{}"'.format(self.fl[filenum]))
+    def openAndPrintFile(self, file):
+        self.sendGCode('SDCARD_PRINT_FILE FILENAME="{}"'.format(str(file)))
 
     def sendGCode(self, Gcode):
         self.gcode._process_commands([Gcode])
