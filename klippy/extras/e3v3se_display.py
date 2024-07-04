@@ -685,7 +685,7 @@ class E3v3seDisplay:
         if encoder_state == self.ENCODER_DIFF_NO:
             return
 
-        fullCnt = len(self.pd.GetFiles(refresh=True))
+        fullCnt = len(self.pd.GetFiles())
 
         if encoder_state == self.ENCODER_DIFF_CW and fullCnt:
             if self.select_file.inc(1 + fullCnt):
@@ -723,21 +723,29 @@ class E3v3seDisplay:
                     )  # Just move highlight
         elif encoder_state == self.ENCODER_DIFF_ENTER:
             if self.select_file.now == 0:  # Back
-                self.select_page.set(0)
-                self.Goto_MainMenu()
+                if self.pd.subdirIndex == 0:
+                    self.select_page.set(0)
+                    self.Goto_MainMenu()
+                else:
+                    self.pd.fileListBack()
+                    self.Redraw_SD_List()
             else:
-                filenum = self.select_file.now - 1
-                # Reset highlight for next entry
-                self.select_print.reset()
-                self.select_file.reset()
+                if self.pd.selectFile(self.select_file.now - 1):
+                    # Reset highlight for next entry
 
-                # // Start choice and print SD file
-                self.pd.HMI_flag.heat_flag = True
-                self.pd.HMI_flag.print_finish = False
-                self.pd.HMI_ValueStruct.show_mode = 0
+                    # // Start choice and print SD file
+                    self.pd.HMI_flag.heat_flag = True
+                    self.pd.HMI_flag.print_finish = False
+                    self.pd.HMI_ValueStruct.show_mode = 0
 
-                self.pd.openAndPrintFile(filenum)
-                self.Goto_PrintProcess()
+                    self.pd.openAndPrintFile(self.pd.fl[self.select_file.now - 1])
+
+                    self.select_print.reset()
+                    self.select_file.reset()
+                    
+                    self.Goto_PrintProcess()
+                else:
+                    self.Redraw_SD_List()
 
     def HMI_Prepare(self):
         """
@@ -2527,7 +2535,10 @@ class E3v3seDisplay:
     # Display an SD item
     def Draw_SDItem(self, item, row=0):
         fl = self.pd.GetFiles()[item]
-        self.Draw_Menu_Line(row, self.icon_file, fl)
+        if len(self.pd.fl[item].split('/')) > self.pd.subdirIndex + 1:
+            self.Draw_Menu_Line(row, False, fl)
+        else:
+            self.Draw_Menu_Line(row, self.icon_file, fl)
 
     def Draw_Confirm_Cancel_Buttons(self):
         if self.select_confirm.now == 1:
@@ -3079,6 +3090,7 @@ class E3v3seDisplay:
         option if available. It also handles drawing the menu cursor and separators.
         """
         self.Clear_Main_Window()
+        self.pd.get_additional_values()
         # Draw "Move" on header
         self.lcd.draw_icon(
             False,
