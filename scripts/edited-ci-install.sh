@@ -19,7 +19,7 @@ PKGS="virtualenv libffi-dev build-essential"
 PKGS="${PKGS} gcc-avr avr-libc"
 PKGS="${PKGS} libnewlib-arm-none-eabi gcc-arm-none-eabi binutils-arm-none-eabi"
 PKGS="${PKGS} pv libmpfr-dev libgmp-dev libmpc-dev texinfo bison flex"
-sudo apt-get install ${PKGS}
+sudo apt-get -y install ${PKGS}
 
 ######################################################################
 # Install (or build) pru gcc
