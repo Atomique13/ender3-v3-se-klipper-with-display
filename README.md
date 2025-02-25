@@ -31,6 +31,46 @@ A section called `[e3v3se_display]` need to be added to your `printer.cfg` to en
 language: portuguese
 logging: True
 ```
+### Custom macros
+The new 'Misc' menu list a set of custom macros that can be defined on your `printer.cfg`.
+You can use this to call macros defined on Klipper using your screen directly, e.g.: Load/Unload filament, calibrate Z offset, calibrate bed mesh, clean nozzle, etc.
+
+On your `printer.cfg` you can define the macros using a new config section `[e3v3se_display MACRO%I]` where `%i` is the macro number (This should be unique per macro). The following properties are available:
+
+| Property | Data type | Required | Description                                                      |
+|----------|-----------|----------|------------------------------------------------------------------|
+| label    | Text      | Yes      | Text to be displayed on the screen                               |
+| icon     | Integer   | No       | Internal firmware icon. Defaults to 14 (file icon)               |
+| gcode    | Text      | Yes      | GCODE to be run when the item is selected.  i.e `G28` for homing |
+
+Some examples for your inspiration:
+
+```yaml
+[e3v3se_display MACRO1]
+gcode: LOAD_FILAMENT
+label: Load filament
+icon: 14
+
+[e3v3se_display MACRO2]
+gcode: UNLOAD_FILAMENT
+label: Unload filament
+icon: 14
+
+[e3v3se_display MACRO3]
+gcode: CALIBRATE_Z_OFFSET
+label: Calibrate Z offset
+icon: 12
+
+[e3v3se_display MACRO4]
+gcode: CALIBRATE_BED_MESH
+label: Calibrate bed mesh
+icon: 29
+
+[e3v3se_display MACRO5]
+gcode: CLEAN_NOZZLE
+label: Clean nozzle
+icon: 9
+```
 
 ## Supported features
 The currently supported features are:
@@ -52,7 +92,8 @@ The currently supported features are:
 | Set max speed          | &cross; |
 | Set max acceleration   | &cross; |
 | Set steps per-mm       | &cross; |
-| Leveling Menu          | &cross; |
+| Manual probe popup     | &check; |
+| Custom macros menu     | &check; |
 
 Features that are not available are shown as a pop-up:
 
